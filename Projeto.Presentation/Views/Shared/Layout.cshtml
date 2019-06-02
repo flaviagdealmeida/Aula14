@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Projeto</title>
+
+    <!-- folhas de estilo CSS -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/DataTables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+
+    <style>
+        .modal-dialog {
+            min-height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: auto;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="card card-body bg-dark">
+            <h2 class="text-white">Sistema de Controle de Turmas</h2>
+        </div>
+
+        <br />
+
+        @RenderBody()
+
+    </div>
+
+    <div id="loading" class="modal" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+
+                    <h4>Processando, por favor aguarde</h4>
+                    <hr />
+
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Carregando...</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- arquivos javascript -->
+    <script src="~/Scripts/jquery-3.0.0.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <script>
+
+        $(document).ajaxStart(function () {
+            $("#loading").modal('show');
+        });
+
+        $(document).ajaxStop(function () {
+            $("#loading").modal('toggle');
+        });
+
+    </script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

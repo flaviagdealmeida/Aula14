@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "Matricula";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section scripts{
+<script>
+
+    //função para executar o cadastro do aluno
+    function cadastrarMatricula() {
+
+        //armazenar o conteúdo dos campos
+        //em um objeto de formato JSON
+        var matricula = {
+            IdTurma: $("#turma").val(),
+            IdAluno: $("#aluno").val()
+        };
+
+        //limpar as mensagens de erro de validação
+        $(".erro").html("");
+        $("#mensagem").html("");
+
+        $.ajax({
+            type: "POST",
+            url: "/Turma/CadastrarMatricula",
+            data: matricula,
+            success: function (d) { //requisição com sucesso
+
+                //imprimindo o resultado obtido do servidor
+                $("#mensagem").html(d);
+
+                //limpar os campos
+                $(".campo").val("");
+
+            },
+            error: function (e) { //erro da requisição
+
+                //verificar o status do erro retornado
+                if (e.status == 500) { //INTERNAL SERVER ERROR
+                    $("#mensagem").html(e.responseText);
+                }
+                else if (e.status == 400) { //BAD REQUEST
+
+                    var erros = e.responseJSON;
+
+                    //exibir as mensagens de erro na página
+                    $("#erroturma").html(erros.IdTurma);
+                   $("#erroaluno").html(erros.IdAluno);
+                }
+
+            }
+        });
+
+    }
+
+    //criando os eventos da página utilizando jquery
+    $(document).ready(function () { //page_load
+
+        //evento executado quando o botão for clicado
+        $("#btncadastro").click(function () {
+            cadastrarMatricula(); //executando a função
+        });
+
+    });
+    function consultarAlunos() {
+        $.ajax({
+            type: "GET",
+            url: "/Aluno/ConsultarAlunos",
+            data: {},
+            success: function (d) {
+
+                var conteudo = "<option value=''>Escolha uma opção </option>";
+                $.each(d, function (i, obj) {
+                    conteudo += "<option value='" +  obj.IdAluno + "'>";
+                    conteudo += obj.Nome;
+                    conteudo += "</option > ";
+                });
+
+                $("#aluno").html(conteudo);
+            },
+            error: function (e) {
+                $("#mensagem").html(e.responseText);
+            }
+        });
+    }
+
+
+    function consultarTurmas() {
+        $.ajax({
+            type: "GET",
+            url: "/Turma/ConsultarTurmas",
+            data: {},
+            success: function (d) {
+
+                var conteudo = "<option value=''>Escolha uma opção </option>";
+
+                $.each(d, function (i, obj) {
+                    conteudo += "<option value='" + obj.IdTurma + "'>";
+                    conteudo += obj.Nome + ",  - inicio em: " + obj.DataInicio;
+                    conteudo += "</option > ";
+                });
+
+                $("#turma").html(conteudo);
+
+            },
+            error: function (e) {
+                $("#mensagem").html(e.responseText);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        consultarTurmas();
+        consultarAlunos();
+
+        //evento executado quando o botão for clicado
+        $("#btncadastro").click(function () {
+            cadastrarMatricula(); //executando a função
+        });
+    });
+
+
+   
+</script>
+}
+
+<h4>Matricular Alunos</h4>
+<a href="/Home/Index">Página inicial</a>
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <label> Selecione a Turma</label>
+            <select id="turma" class="form-control campo"></select>
+            <span id="erroturma" class="text-danger erro"></span>
+            <br />
+
+            <label> Selecione a Turma</label>
+            <select id="aluno" class="form-control campo"></select>
+            <span id="erroaluno" class="text-danger erro"></span>
+            <br />
+
+            <button id="btncadastro" class="btn btn-success">Matricular Aluno</button>
+            <br />
+            <br />
+
+            <div id="mensagem"></div>
+        </div>
+    </div>
+
+</div>

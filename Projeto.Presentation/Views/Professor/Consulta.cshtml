@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewBag.Title = "Consulta";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section scripts{
+
+    <!-- biblioteca do jquery datatables -->
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+
+    <script>
+
+        function consultarProfessores() {
+            $.ajax({
+                type: "GET",
+                url: "/Professor/ConsultarProfessores",
+                data: {},
+                success: function (d) {
+
+                    var dados = [];
+                    $.each(d, function (i, obj) {
+                        dados.push(
+                            [
+                                obj.IdProfessor,
+                                obj.Nome,
+                                obj.Email
+                            ]
+                        );
+                    });
+
+                    $("#tabela").DataTable({
+                        data: dados,
+                        language: {
+                            url: '//cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese.json'
+                        }
+                    });
+
+                },
+                error: function (e) {
+                    $("#mensagem").html(e.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            consultarProfessores();
+        });
+
+    </script>
+
+}
+
+<h4>Consulta de Professores</h4>
+<a href="/Home/Index">Página inicial</a>
+<hr />
+
+
+<div id="mensagem"></div>
+
+<table id="tabela" class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th class="bg-info text-white">Código</th>
+            <th class="bg-info text-white">Nome do Professor</th>
+            <th class="bg-info text-white">Email</th>
+        </tr>
+    </thead>
+</table>

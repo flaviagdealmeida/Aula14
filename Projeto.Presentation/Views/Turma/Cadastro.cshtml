@@ -1,0 +1,179 @@
+﻿
+@{
+    ViewBag.Title = "Cadastro";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section scripts{
+    <script>
+
+        function consultarAlunos() {
+            $.ajax({
+                type: "GET",
+                url: "/Aluno/ConsultarAlunos",
+                data: {},
+                success: function (d) {
+
+                    var conteudo = "";
+                    $.each(d, function (i, obj) {
+                        conteudo += "<input type = 'checkbox' class='aluno' value='" + obj.IdAluno + "'/>";
+                        conteudo += obj.Nome;
+                        conteudo += "<br/>";
+                    });
+
+                    $("#alunos").html(conteudo);
+                },
+                error: function (e) {
+                    $("#mensagem").html(e.responseText);
+                }
+            });
+        }
+
+        //função para executar o cadastro do aluno
+        function cadastrarTurma() {
+            var alunos = new Array();
+
+            //capturar alunos marcados
+            $(".aluno").each(function (){
+                if ($(this).prop("checked")) {
+                    var idAluno = $(this).val();
+                    alunos.push(idAluno);
+                }
+            });
+
+            //armazenar o conteúdo dos campos
+            //em um objeto de formato JSON
+            var turma = {
+                Nome: $("#nometurma").val(),
+                DataInicio: $("#dataturma").val(),
+                IdProfessor: $("#professorturma").val(),
+                AlunosSelecionados : alunos
+            };
+
+            //limpar as mensagens de erro de validação
+            $(".erro").html("");
+            $("#mensagem").html("");
+
+            $.ajax({
+                type: "POST",
+                url: "/Turma/CadastrarTurma",
+                data: turma,
+                success: function (d) { //requisição com sucesso
+
+                    //imprimindo o resultado obtido do servidor
+                    $("#mensagem").html(d);
+
+                    //limpar os campos
+                    $(".campo").val("");
+                    $('.aluno').prop('checked', false);
+
+                },
+                error: function (e) { //erro da requisição
+
+                    //verificar o status do erro retornado
+                    if (e.status == 500) { //INTERNAL SERVER ERROR
+                        $("#mensagem").html(e.responseText);
+                    }
+                    else if (e.status == 400) { //BAD REQUEST
+
+                        var erros = e.responseJSON;
+
+                        //exibir as mensagens de erro na página
+                        $("#erronome").html(erros.Nome);
+                        $("#errodatainicio").html(erros.DataInicio);
+                        $("#erroprofessor").html(erros.IdProfessor);
+
+                    }
+
+                }
+            });
+
+        }
+
+
+        function consultarProfessores() {
+            $.ajax({
+                type: "GET",
+                url: "/Professor/ConsultarProfessores",
+                data: {},
+                success: function (d) {
+
+                    var conteudo = "<option value=''>Escolha uma opção </option>";
+
+                    $.each(d, function (i, obj) {
+                        conteudo += "<option value='" + obj.IdProfessor + "'>";
+                        conteudo += obj.Nome;
+                        conteudo += "</option>";
+                    });
+
+                    $("#professorturma").html(conteudo);
+
+                },
+                error: function (e) {
+                    $("#mensagem").html(e.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            consultarProfessores();
+            consultarAlunos();
+        });
+
+
+        //evento executado quando o botão for clicado
+        $("#btncadastro").click(function () {
+            cadastrarTurma(); //executando a função
+        });
+    </script>
+}
+
+<h4>Cadastro de Turmas</h4>
+<a href="/Home/Index">Página inicial</a>
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <label>Nome da Turma: </label>
+            <input type="text" id="nometurma" class="form-control campo" placeholder="Nome da Turma" />
+            <span id="erronome" class="text-danger erro"></span>
+            <br />
+
+        </div>
+
+        <div class="col-md-4">
+            <label>Nome da Turma: </label>
+            <input type="date" id="dataturma" class="form-control campo" placeholder="Nome da Turma" />
+            <span id="errodatainicio" class="text-danger erro"></span>
+            <br />
+
+        </div>
+
+        <div class="col-md-4">
+            <label>Selecione o Professor: </label>
+            <select id="professorturma" class="form-control campo"></select>
+            <span id="erroprofessor" class="text-danger erro"></span>
+            <br />
+        </div>
+        <br />
+ </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <strong>Selecione os alunos que deseja cadastrar na turma:   </strong>
+            <br />
+            <div id="alunos"></div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+
+        <div class="col-md-4">
+            <button id="btncadastro" class="btn btn-info"> Cadastrar Turma </button>
+        </div>
+        <br />
+        <div id="mensagem"></div>
+
+    </div>
+</div>

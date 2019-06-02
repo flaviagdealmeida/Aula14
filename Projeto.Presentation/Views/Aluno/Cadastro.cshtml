@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "Cadastro";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section scripts{
+
+    <script>
+
+        //função para executar o cadastro do aluno
+        function cadastrarAluno() {
+
+            //armazenar o conteúdo dos campos
+            //em um objeto de formato JSON
+            var aluno = {
+                Nome: $("#nomealuno").val(),
+                Matricula: $("#matriculaaluno").val(),
+                Sexo: $("#sexoaluno").val(),
+                DataNascimento: $("#datanascimentoaluno").val()
+            };
+
+            //limpar as mensagens de erro de validação
+            $(".erro").html("");
+            $("#mensagem").html("");
+
+            $.ajax({
+                type: "POST",
+                url: "/Aluno/CadastrarAluno",
+                data: aluno,
+                success: function (d) { //requisição com sucesso
+
+                    //imprimindo o resultado obtido do servidor
+                    $("#mensagem").html(d);
+
+                    //limpar os campos
+                    $(".campo").val("");
+
+                },
+                error: function (e) { //erro da requisição
+
+                    //verificar o status do erro retornado
+                    if (e.status == 500){ //INTERNAL SERVER ERROR
+                        $("#mensagem").html(e.responseText);
+                    }
+                    else if (e.status == 400){ //BAD REQUEST
+
+                        var erros = e.responseJSON;
+
+                        //exibir as mensagens de erro na página
+                        $("#erronome").html(erros.Nome);
+                        $("#erromatricula").html(erros.Matricula);
+                        $("#errosexo").html(erros.Sexo);
+                        $("#errodatanascimento").html(erros.DataNascimento);
+                    }
+
+                }
+            });
+
+        }
+
+        //criando os eventos da página utilizando jquery
+        $(document).ready(function () { //page_load
+
+            //evento executado quando o botão for clicado
+            $("#btncadastro").click(function () {
+                cadastrarAluno(); //executando a função
+            });
+
+        });
+
+    </script>
+
+}
+
+<h4>Cadastro de Alunos</h4>
+<a href="/Home/Index">Página inicial</a>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+
+        <label>Nome do Aluno:</label>
+        <input type="text" id="nomealuno" class="form-control campo"
+               placeholder="Nome do Aluno" />
+        <span id="erronome" class="text-danger erro"></span>
+        <br />
+
+        <label>Matrícula:</label>
+        <input type="text" id="matriculaaluno" class="form-control campo"
+               placeholder="Matrícula do Aluno" />
+        <span id="erromatricula" class="text-danger erro"></span>
+        <br />
+
+        <label>Sexo:</label>
+        <select id="sexoaluno" class="form-control campo">
+            <option value="">Selecione uma opção</option>
+            <option value="F">Feminino</option>
+            <option value="M">Masculino</option>
+        </select>
+        <span id="errosexo" class="text-danger erro"></span>
+        <br />
+
+        <label>Data de Nascimento:</label>
+        <input type="date" id="datanascimentoaluno" class="form-control campo" />
+        <span id="errodatanascimento" class="text-danger erro"></span>
+        <br />
+
+        <button id="btncadastro" class="btn btn-success">
+            Cadastrar Aluno
+        </button>
+        <br />
+        <br />
+
+        <div id="mensagem"></div>
+
+    </div>
+</div>

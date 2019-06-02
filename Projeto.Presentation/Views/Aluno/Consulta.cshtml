@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewBag.Title = "Consulta";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+@section scripts{
+    
+    <!-- biblioteca do jquery datatables -->
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+
+    <script>
+
+        function consultarAlunos() {
+            $.ajax({
+                type: "GET",
+                url: "/Aluno/ConsultarAlunos",
+                data: {},
+                success: function (d) {
+
+                    var dados = [];
+                    $.each(d, function (i, obj) {
+                        dados.push(
+                            [
+                                obj.IdAluno,
+                                obj.Nome,
+                                obj.Matricula,
+                                obj.Sexo,
+                                obj.DataNascimento
+                            ]
+                        );
+                    });
+                    
+                    $("#tabela").DataTable({
+                        data: dados,
+                        language: {
+                            url: '//cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese.json'
+                        }
+                    });
+
+                },
+                error: function (e) {
+                    $("#mensagem").html(e.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            consultarAlunos();
+        });
+
+    </script>
+
+}
+
+<h4>Consulta de Alunos</h4>
+<a href="/Home/Index">Página inicial</a>
+<hr />
+
+<div id="mensagem"></div>
+
+<table id="tabela" class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th class="bg-info text-white">Código</th>
+            <th class="bg-info text-white">Nome do Aluno</th>
+            <th class="bg-info text-white">Matricula</th>
+            <th class="bg-info text-white">Sexo</th>
+            <th class="bg-info text-white">Data de Nascimento</th>
+        </tr>
+    </thead>
+</table>
+
